@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hotel Ganesh – Pure Veg</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; }
+    .phone { width: 390px; min-height: 844px; background: #fff; border-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .page { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
+    .page.active { display: flex; }
+    .red { color: #c0392b; }
+    .bg-red { background: #c0392b; }
+    .border-red { border-color: #c0392b; }
+    .status-bar { background: #c0392b; color: white; font-size: 12px; padding: 6px 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .header { background: #c0392b; color: white; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .header h2 { margin: 0; font-size: 18px; font-weight: 700; flex: 1; text-align: center; }
+    .btn-back { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; }
+    .btn-menu { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; }
+    .nav-item { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid #f0e0e0; cursor: pointer; background: white; transition: background 0.2s; }
+    .nav-item:hover { background: #fff5f5; }
+    .nav-item .nav-icon { width: 36px; height: 36px; background: #c0392b; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; flex-shrink: 0; }
+    .nav-item .nav-label { font-size: 16px; font-weight: 600; color: #333; flex: 1; }
+    .nav-item .nav-arrow { color: #c0392b; font-size: 18px; }
+    .card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 12px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-green { background: #e8f5e9; color: #2e7d32; }
+    .badge-orange { background: #fff3e0; color: #e65100; }
+    .badge-blue { background: #e3f2fd; color: #1565c0; }
+    .table-card { background: white; border-radius: 12px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; border: 2px solid #e0e0e0; transition: all 0.2s; }
+    .table-card:hover { border-color: #c0392b; background: #fff5f5; }
+    .table-card.occupied { border-color: #c0392b; background: #fff5f5; }
+    .table-icon { font-size: 32px; }
+    .table-num { font-size: 22px; font-weight: 800; color: #c0392b; }
+    .table-label { font-size: 11px; color: #888; }
+    .dish-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+    .dish-img { width: 54px; height: 54px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: #f0e0e0; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .dish-info { flex: 1; }
+    .dish-name { font-size: 14px; font-weight: 600; color: #222; }
+    .dish-price { font-size: 13px; color: #c0392b; font-weight: 700; }
+    .btn-add { width: 30px; height: 30px; background: #c0392b; border: none; border-radius: 8px; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .qty-ctrl { display: flex; align-items: center; gap: 6px; }
+    .qty-ctrl button { width: 26px; height: 26px; border: 1px solid #c0392b; border-radius: 6px; background: white; color: #c0392b; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .qty-ctrl span { font-size: 14px; font-weight: 700; min-width: 18px; text-align: center; }
+    .bottom-bar { background: white; border-top: 2px solid #f0e0e0; padding: 12px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .btn-primary { background: #c0392b; color: white; border: none; border-radius: 10px; padding: 12px 20px; font-size: 15px; font-weight: 700; cursor: pointer; flex: 1; transition: opacity 0.2s; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-outline { background: white; color: #c0392b; border: 2px solid #c0392b; border-radius: 10px; padding: 10px 16px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-outline:hover { background: #fff5f5; }
+    .payment-opt { display: flex; gap: 8px; margin-top: 8px; }
+    .pay-btn { flex: 1; padding: 10px 6px; border-radius: 10px; border: 2px solid #e0e0e0; background: white; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .pay-btn.selected { border-color: #c0392b; background: #fff5f5; color: #c0392b; }
+    .bill-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+    .bill-total { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 6px; font-size: 16px; font-weight: 800; color: #c0392b; border-top: 2px solid #c0392b; }
+    .category-tab { padding: 8px 14px; border-radius: 20px; border: 2px solid #e0e0e0; background: white; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; color: #555; }
+    .category-tab.active { background: #c0392b; color: white; border-color: #c0392b; }
+    .filter-tab { padding: 6px 14px; border-radius: 16px; border: 2px solid #e0e0e0; background: white; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: #555; }
+    .filter-tab.active { background: #c0392b; color: white; border-color: #c0392b; }
+    .bills-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
+    .bills-row:hover { background: #fff5f5; padding-left: 4px; border-radius: 6px; }
+    select { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 6px 10px; font-size: 13px; color: #333; background: white; cursor: pointer; outline: none; }
+    select:focus { border-color: #c0392b; }
+    .success-anim { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 30px; }
+    .checkmark { width: 80px; height: 80px; border-radius: 50%; background: #4caf50; display: flex; align-items: center; justify-content: center; color: white; font-size: 44px; box-shadow: 0 4px 20px rgba(76,175,80,0.3); }
+    .confetti-emoji { font-size: 28px; animation: bounce 0.5s ease infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+    .stat-card { background: white; border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 4px; }
+    .divider { height: 1px; background: #f0e0e0; margin: 8px 0; }
+    .search-bar { display: flex; align-items: center; gap: 8px; border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 8px 12px; background: white; margin: 8px 0; }
+    .search-bar input { border: none; outline: none; flex: 1; font-size: 14px; color: #333; background: transparent; }
+    .dropdown-section { border: 1.5px solid #e0e0e0; border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+    .dropdown-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; cursor: pointer; background: #fafafa; font-weight: 600; font-size: 14px; color: #333; }
+    .dropdown-header:hover { background: #f0e0e0; }
+    .dropdown-body { display: none; }
+    .dropdown-body.open { display: block; }
+    .logo-area { display: flex; align-items: center; gap: 12px; padding: 24px 20px 16px; }
+    .logo-img { width: 70px; height: 70px; border-radius: 14px; background: #fff3cd; display: flex; align-items: center; justify-content: center; font-size: 36px; border: 2px solid #f0c040; }
+    .logo-text-hi { font-size: 13px; color: #c0392b; font-weight: 700; }
+    .logo-name-hi { font-size: 22px; font-weight: 900; color: #c0392b; line-height: 1; }
+    .logo-name-en { font-size: 20px; font-weight: 900; color: #c0392b; line-height: 1; }
+    .logo-sub { font-size: 11px; color: #888; font-weight: 600; letter-spacing: 1px; }
+    .logo-tagline { font-size: 13px; color: #888; font-style: italic; margin-top: 4px; }
+    .home-footer { text-align: center; padding: 12px 0 20px; color: #bbb; font-size: 11px; }
+    .scroll-x { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .scroll-x::-webkit-scrollbar { display: none; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #e0c0c0; border-radius: 4px; }
+  </style>
+</head>
+<body>
+<div class="phone" id="app">
+
+  <!-- ============ STATUS BAR ============ -->
+  <div class="status-bar" id="statusBar">
+    <span>9:41</span>
+    <span>📶 🔋</span>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PAGE 1: HOME -->
+  <!-- ========================================================= -->
+  <div class="page active" id="page-home" style="background:#fff;">
+    <!-- Logo -->
+    <div style="background:#c0392b; padding-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:14px;padding:20px 16px 16px;">
+        <div class="logo-img">🧑‍🍳</div>
+        <div>
+          <div style="font-size:11px;color:#ffdddd;">हॉटेल</div>
+          <div style="font-size:22px;font-weight:900;color:white;line-height:1.1;">गणेश</div>
+          <div style="font-size:11px;color:#ffdddd;letter-spacing:0.5px;">HOTEL GANESH</div>
+          <div style="font-size:13px;font-weight:800;color:white;">PURE VEG</div>
+          <div style="font-size:10px;color:#ffdddd;margin-top:2px;">AAVAD TUMCHI, CHAAV AAMCHI</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav Menu -->
+    <div style="flex:1; background:#fff;">
+      <div class="nav-item" onclick="goto('page-dashboard')">
+        <div class="nav-icon">📊</div>
+        <span class="nav-label">Dashboard</span>
+        <span class="nav-arrow">›</span>
+      </div>
+      <div class="nav-item" onclick="goto('page-tables')">
+        <div class="nav-icon">🍽️</div>
+        <span class="nav-label">Tables</span>
+        <span class="nav-arrow">›</span>
+      </div>
+      <div class="nav-item" onclick="goto('page-menu-direct')">
+        <div class="nav-icon">🍛</div>
+        <span class="nav-label">Menu</span>
+        <span class="nav-arrow">›</span>
+      </div>
+      <div class="nav-item" onclick="goto('page-bills')">
+        <div class="nav-icon">🧾</div>
+        <span class="nav-label">Bills</span>
+        <span class="nav-arrow">›</span>
+      </div>
+    </div>
+
+    <!-- Tagline & Footer -->
+    <div style="padding:20px; text-align:center; border-top:1px solid #f0e0e0;">
+      <div style="font-style:italic; color:#c0392b; font-size:14px; font-weight:600;">Good Food</div>
+      <div style="font-style:italic; color:#c0392b; font-size:14px; font-weight:600;">Brings People Together</div>
+      <div style="margin-top:10px; color:#bbb; font-size:11px;">v1.0</div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PAGE 2: DASHBOARD -->
+  <!-- ========================================================= -->
+  <div class="page" id="page-dashboard" style="background:#f8f8f8;">
+    <div class="header">
+      <button class="btn-menu" onclick="goto('page-home')">☰</button>
+      <h2>Dashboard</h2>
+    </div>
+    <div style="padding:14px; flex:1; overflow-y:auto;">
+      <!-- Date -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">
+        <span style="font-size:13px;color:#555;">📅</span>
+        <select style="font-size:13px;border-color:#ddd;">
+          <option>Tue, 9 Sep 2026</option>
+          <option>Mon, 8 Sep 2026</option>
+        </select>
+      </div>
+
+      <!-- Stats Row 1 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fff0f0;">💰</div>
+          <div style="font-size:12px;color:#888;">Total Sales</div>
+          <div style="font-size:22px;font-weight:900;color:#c0392b;">₹ 8,450</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fff0f0;">🧾</div>
+          <div style="font-size:12px;color:#888;">Total Bills</div>
+          <div style="font-size:22px;font-weight:900;color:#c0392b;">37</div>
+        </div>
+      </div>
+
+      <!-- Stats Row 2 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fff0f0;">👥</div>
+          <div style="font-size:12px;color:#888;">Active Tables</div>
+          <div style="font-size:22px;font-weight:900;color:#c0392b;">3 / 5</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e8f5e9;">✅</div>
+          <div style="font-size:12px;color:#888;">Available Tables</div>
+          <div style="font-size:22px;font-weight:900;color:#2e7d32;">2 / 5</div>
+        </div>
+      </div>
+
+      <!-- Today's Sales -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;color:#c0392b;margin-bottom:10px;">📊 Today's Sales (Payment Method)</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f5;">
+          <span style="font-size:13px;">💵 Cash</span>
+          <span style="font-weight:700;color:#333;">₹ 4,820</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f5;">
+          <span style="font-size:13px;">📱 UPI</span>
+          <span style="font-weight:700;color:#333;">₹ 3,630</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">
+          <span style="font-size:13px;">••• Other</span>
+          <span style="font-weight:700;color:#333;">₹ 0</span>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;color:#333;margin-bottom:10px;">⚡ Quick Actions</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-outline" style="flex:1;font-size:12px;" onclick="goto('page-bills')">🧾 View Today's Bills</button>
+          <button class="btn-outline" style="flex:1;font-size:12px;" onclick="goto('page-dashboard')">📈 View Reports</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PAGE 3: TABLES LIST -->
+  <!-- ========================================================= -->
+  <div class="page" id="page-tables" style="background:#f8f8f8;">
+    <div class="header">
+      <button class="btn-back" onclick="goto('page-home')">‹</button>
+      <h2>Tables</h2>
+    </div>
+    <div style="padding:16px; flex:1;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="table-card occupied" onclick="selectTable(1)">
+          <div class="table-icon">🍽️</div>
+          <div style="font-size:11px;color:#888;">Table</div>
+          <div class="table-num">1</div>
+          <span class="badge badge-orange">Active</span>
+        </div>
+        <div class="table-card occupied" onclick="selectTable(2)">
+          <div class="table-icon">🍽️</div>
+          <div style="font-size:11px;color:#888;">Table</div>
+          <div class="table-num">2</div>
+          <span class="badge badge-orange">Active</span>
+        </div>
+        <div class="table-card" onclick="selectTable(3)">
+          <div class="table-icon">🍽️</div>
+          <div style="font-size:11px;color:#888;">Table</div>
+          <div class="table-num">3</div>
+          <span class="badge badge-green">Free</span>
+        </div>
+        <div class="table-card occupied" onclick="selectTable(4)">
+          <div class="table-icon">🍽️</div>
+          <div style="font-size:11px;color:#888;">Table</div>
+          <div class="table-num">4</div>
+          <span class="badge badge-orange">Active</span>
+        </div>
+        <div class="table-card" onclick="selectTable(5)" style="grid-column:span 2;">
+          <div class="table-icon">🍽️</div>
+          <div style="font-size:11px;color:#888;">Table</div>
+          <div class="table-num">5</div>
+          <span class="badge badge-green">Free</span>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:#fff3e0;border-radius:10px;text-align:center;font-size:13px;color:#e65100;">
+        ℹ️ Select a table to place order or view current order.
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PAGE 4: MENU ORDER (after table selected) -->
+  <!-- ========================================================= -->
+  <div class="page" id="page-menu" style="background:#f8f8f8;">
+    <div class="header">
+      <button class="btn-back" onclick="goto('page-tables')">‹</button>
+      <h2 id="menu-header">Table 2 – New Order</h2>
+      <button class="btn-menu" style="font-size:14px;background:#fff3;border-radius:6px;padding:4px 8px;font-weight:700;" onclick="clearCart()">Clear</button>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="scroll-x" style="padding:10px 14px 6px;" id="category-tabs">
+      <button class="category-tab active" data-cat="Breakfast" onclick="setCategory(this,'Breakfast')">Breakfast</button>
+      <button class="category-tab" data-cat="Meals" onclick="setCategory(this,'Meals')">Meals</button>
+      <button class="category-tab" data-cat="Chapati Bhaji" onclick="setCategory(this,'Chapati Bhaji')">Chapati Bhaji</button>
+      <button class="category-tab" data-cat="Tea & Coffee" onclick="setCategory(this,'Tea & Coffee')">Tea & Coffee</button>
+      <button class="category-tab" data-cat="Snacks" onclick="setCategory(this,'Snacks')">Snacks</button>
+    </div>
+
+    <!-- Search -->
+    <div style="padding:0 14px 8px;">
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" placeholder="Search dishes..." oninput="searchDishes(this.value)" />
+      </div>
+    </div>
+
+    <!-- Dish List -->
+    <div style="padding:0 14px;flex:1;overflow-y:auto;" id="dish-list"></div>
+
+    <!-- Bottom Cart Bar -->
+    <div class="bottom-bar" id="cart-bar" style="display:none;">
+      <div style="flex:1;">
+        <div style="font-size:12px;color:#888;" id="cart-count-label">0 items</div>
+        <div style="font-size:16px;font-weight:800;color:#c0392b;" id="cart-total-label">₹ 0</div>
+      </div>
+      <button class="btn-primary" style="flex:1.5;" onclick="goto('page-bill-preview')">View Bill →</button>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PAGE 4B: MENU (Direct, no table) -->
+  <!-- ========================================================= -->
+  <div class="page" id="page-menu-direct" style="background:#f8f8f8;">
+    <div class="header">
+      <button class="btn-back" onclick="goto('page-home')">‹</button>
+      <h2>Menu</h2>
+    </div>
+    <div style="padding:16px;flex:1;overflow-y:auto;">
+      <div style="font-size:13px;color:#888;margin-bottom:12px;">Browse all menu categories:</div>
+      <div onclick="selectTable(1);goto('page-menu');" class="nav-item" style="border-radius:10px;margin-bottom:8px;border:1.5px solid #f0e0e0;">
+        <div class="nav-icon">🌅</div>
+        <span class="nav-label">Breakfast</span>
+        <span class="nav-arrow">›</span>
+      </div>
+      <div onclick="setDirectCategory('Meals')" class="nav-item" style="border-radius:10px;margin-bottom:8px;border:1.5px solid #f0e0e0;">
+        <div class="nav-icon">🍱</div>
+        <span class="nav-label">Meals</span>
+        <span class="nav-arrow">›</span>
+      </div>
+      <div onclick="setDirectCategory('Chapati Bhaji')" class="nav-item" style="border-radius:10px;margin-bottom:8px;border:1.5px solid #f0e0e0;">
+        <div class="nav-icon">🫓</div>
+        <span class="nav-label">Chapati Bhaji</span>
+        <span class="nav-arrow">›</span>
+      </div>
+      <div onclick="setDirectCategory('Tea & Coffee')" class="nav-item" style="border-radius:10px;margin-bottom:8px;border:1.5px solid #f0e0e0;">
+        <div class="nav-icon">☕</div>
+        <span class="nav-label">Tea & Coffee</span>
+        <span class="nav-arrow">›</span>
+      </div>
+      <div onclick="setDirectCategory('Snacks')" class="nav-item" style="border-radius:10px;margin-bottom:8px;border:1.5px solid #f0e0e0;">
+        <div class="nav-icon">🍟</div>
+        <span class="nav-label">Snacks</span>
+        <span class="nav-arrow">›</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PAGE 5: BILL PREVIEW -->
+  <!-- ========================================================= -->
+  <div class="page" id="page-bill-preview" style="background:#f8f8f8;">
+    <div class="header">
+      <button class="btn-back" onclick="goto('page-menu')">‹</button>
+      <h2 id="bill-preview-header">Table 2 – Bill</h2>
+      <button style="background:none;border:none;color:white;font-size:12px;font-weight:700;cursor:pointer;" onclick="clearCart()">Clear All</button>
+    </div>
+    <div style="padding:14px;flex:1;overflow-y:auto;">
+      <!-- Hotel Header on Bill -->
+      <div style="text-align:center;padding:12px;background:white;border-radius:12px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="font-size:20px;">🧑‍🍳</div>
+        <div style="font-size:16px;font-weight:900;color:#c0392b;">HOTEL GANESH</div>
+        <div style="font-size:11px;color:#888;font-weight:600;">PURE VEG</div>
+        <div style="font-size:10px;color:#aaa;">AAVAD TUMCHI, CHAAV AAMCHI</div>
+      </div>
+
+      <!-- Bill Info -->
+      <div class="card" style="margin-bottom:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:#666;margin-bottom:10px;">
+          <div><span style="color:#888;">Bill No:</span> <strong id="preview-billno">HG-00452</strong></div>
+          <div><span style="color:#888;">Table No:</span> <strong id="preview-tableno">2</strong></div>
+          <div><span style="color:#888;">Date:</span> <strong id="preview-date">09 Sep 2026</strong></div>
+          <div><span style="color:#888;">Time:</span> <strong id="preview-time">07:42 PM</strong></div>
+        </div>
+        <!-- Bill Items -->
+        <div style="font-size:12px;color:#888;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4px;padding:6px 0;border-bottom:1.5px solid #c0392b;font-weight:700;">
+          <span>Item</span><span style="text-align:center;">Qty</span><span style="text-align:right;">Rate</span><span style="text-align:right;">Amount</span>
+        </div>
+        <div id="bill-items-preview"></div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;padding:3px 0;">
+          <span>Subtotal</span><span id="preview-subtotal" style="font-weight:600;">₹ 265</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;padding:3px 0;">
+          <span>CGST (0%)</span><span>₹ 0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;padding:3px 0;">
+          <span>SGST (0%)</span><span>₹ 0</span>
+        </div>
+        <div class="bill-total" style="margin-top:8px;">
+          <span>Total Amount</span><span id="preview-total">₹ 265</span>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Payment Method</div>
+        <div class="payment-opt" id="pay-method-btns">
+          <div class="pay-btn selected" onclick="selectPay(this,'Cash')">💵 Cash</div>
+          <div class="pay-btn" onclick="selectPay(this,'UPI')">📱 UPI</div>
+          <div class="pay-btn" onclick="selectPay(this,'Other')">••• Other</div>
+        </div>
+      </div>
+
+      <!-- Thank You -->
+      <div style="text-align:center;padding:12px;font-size:13px;font-style:italic;color:#888;">Thank You! Visit Again.</div>
+    </div>
+    <!-- Actions -->
+    <div class="bottom-bar">
+      <button class="btn-outline" style="flex:1;" onclick="printBill()">🖨️ Print Bill</button>
+      <button class="btn-primary" style="flex:1.2;" onclick="saveBill()">💾 Save Bill</button>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PAGE 6: BILL SAVED SUCCESS -->
+  <!-- ========================================================= -->
+  <div class="page" id="page-bill-saved" style="background:#f8f8f8;">
+    <div class="header">
+      <button class="btn-menu" onclick="goto('page-home')">☰</button>
+      <h2>Bill Saved</h2>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+      <div style="font-size:40px;margin-bottom:-10px;">🎉</div>
+      <div class="checkmark">✓</div>
+      <div style="font-size:20px;font-weight:800;color:#333;margin-top:16px;text-align:center;">Bill Saved Successfully!</div>
+      <div style="font-size:14px;color:#888;margin-top:6px;text-align:center;" id="saved-bill-msg">Bill No. HG-00452 has been saved.</div>
+      <div style="margin-top:30px;width:100%;display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-outline" style="width:100%;font-size:14px;padding:14px;" onclick="goto('page-bills')">🧾 View Today's Bills ›</button>
+        <button class="btn-outline" style="width:100%;font-size:14px;padding:14px;" onclick="goto('page-bills')">🔁 View Bill History ›</button>
+        <button class="btn-primary" style="width:100%;font-size:15px;padding:14px;margin-top:10px;" onclick="newOrder()">+ New Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PAGE 7: BILLS LIST -->
+  <!-- ========================================================= -->
+  <div class="page" id="page-bills" style="background:#f8f8f8;">
+    <div class="header">
+      <button class="btn-back" onclick="goto('page-home')">‹</button>
+      <h2>Bills</h2>
+    </div>
+    <div style="padding:14px;flex:1;overflow-y:auto;">
+      <!-- Time Filters -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="filter-tab active" onclick="setFilter(this,'Today')">Today</button>
+        <button class="filter-tab" onclick="setFilter(this,'Week')">Week</button>
+        <button class="filter-tab" onclick="setFilter(this,'Month')">Month</button>
+        <button class="filter-tab" onclick="setFilter(this,'Year')">Year</button>
+      </div>
+
+      <!-- Table & Payment Filters -->
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <select id="table-filter" onchange="renderBillsList()" style="flex:1;font-size:12px;">
+          <option value="all">🍽️ All Tables</option>
+          <option value="1">Table 1</option>
+          <option value="2">Table 2</option>
+          <option value="3">Table 3</option>
+          <option value="4">Table 4</option>
+          <option value="5">Table 5</option>
+        </select>
+        <select id="pay-filter" onchange="renderBillsList()" style="flex:1;font-size:12px;">
+          <option value="all">💰 All Payments</option>
+          <option value="Cash">Cash</option>
+          <option value="UPI">UPI</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Date -->
+      <div style="margin-bottom:10px;">
+        <select style="font-size:12px;width:100%;">
+          <option>📅 Tue, 9 Sep 2026</option>
+          <option>Mon, 8 Sep 2026</option>
+        </select>
+      </div>
+
+      <!-- Totals -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div class="stat-card">
+          <div style="font-size:11px;color:#888;">Total Sales</div>
+          <div style="font-size:18px;font-weight:900;color:#c0392b;" id="bills-total-sales">₹ 8,450</div>
+        </div>
+        <div class="stat-card">
+          <div style="font-size:11px;color:#888;">Total Bills</div>
+          <div style="font-size:18px;font-weight:900;color:#c0392b;" id="bills-total-count">37</div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-bar" style="margin-bottom:10px;">
+        <span>🔍</span>
+        <input type="text" placeholder="Search by bill no..." oninput="searchBills(this.value)" />
+      </div>
+
+      <!-- Bills Table Header -->
+      <div style="display:grid;grid-template-columns:1.4fr 0.6fr 0.8fr 0.8fr 0.5fr;gap:4px;padding:6px 8px;background:#f0e0e0;border-radius:8px;font-size:11px;font-weight:700;color:#c0392b;margin-bottom:4px;">
+        <span>Bill No</span><span>Table</span><span>Amount</span><span>Time</span><span>Pay</span>
+      </div>
+      <div id="bills-list"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PAGE 8: BILL DETAILS -->
+  <!-- ========================================================= -->
+  <div class="page" id="page-bill-detail" style="background:#f8f8f8;">
+    <div class="header">
+      <button class="btn-menu" onclick="goto('page-bills')">☰</button>
+      <h2>Bill Details</h2>
+    </div>
+    <div style="padding:14px;flex:1;overflow-y:auto;">
+      <!-- Hotel Logo on Detail -->
+      <div style="text-align:center;padding:14px;background:white;border-radius:12px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="font-size:24px;">🧑‍🍳</div>
+        <div style="font-size:17px;font-weight:900;color:#c0392b;">गणेश / HOTEL GANESH</div>
+        <div style="font-size:11px;color:#888;font-weight:600;">PURE VEG</div>
+        <div style="font-size:10px;color:#aaa;">AAVAD TUMCHI, CHAAV AAMCHI</div>
+      </div>
+
+      <!-- Bill Meta -->
+      <div class="card" style="margin-bottom:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:#444;margin-bottom:12px;">
+          <div><span style="color:#888;">Bill No :</span> <strong id="det-billno">HG-00451</strong></div>
+          <div><span style="color:#888;">Date :</span> <strong>09 Sep 2026</strong></div>
+          <div><span style="color:#888;">Time :</span> <strong>07:31 PM</strong></div>
+          <div><span style="color:#888;">Table No :</span> <strong id="det-tableno">1</strong></div>
+          <div><span style="color:#888;">Payment :</span> <strong id="det-pay">Cash</strong></div>
+          <div><span style="color:#888;">Status :</span> <span class="badge badge-green">Paid</span></div>
+        </div>
+        <!-- Items header -->
+        <div style="font-size:11px;color:#888;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4px;padding:6px 0;border-bottom:1.5px solid #c0392b;font-weight:700;">
+          <span>Item</span><span style="text-align:center;">Qty</span><span style="text-align:right;">Rate</span><span style="text-align:right;">Amount</span>
+        </div>
+        <div id="det-items"></div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0 4px;font-size:15px;font-weight:800;color:#c0392b;border-top:2px solid #c0392b;margin-top:8px;">
+          <span>Total Amount</span><span id="det-total">₹ 260</span>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:10px;font-size:13px;font-style:italic;color:#888;">Thank You! Visit Again.</div>
+    </div>
+    <div class="bottom-bar">
+      <button class="btn-outline" style="flex:1;">🖨️ Print Bill</button>
+      <button class="btn-primary" style="flex:1.2;">📥 Download PDF</button>
+    </div>
+  </div>
+
+</div><!-- .phone -->
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const MENU = {
+  "Breakfast": [
+    { id:1, name:"Pohe",       price:30,  emoji:"🍚" },
+    { id:2, name:"Upma",       price:30,  emoji:"🥣" },
+    { id:3, name:"Sheera",     price:40,  emoji:"🍮" },
+    { id:4, name:"Khichdi",    price:50,  emoji:"🍲" },
+    { id:5, name:"Misal Pav",  price:90,  emoji:"🌶️" },
+    { id:6, name:"Vada Sambar",price:55,  emoji:"🍩" },
+    { id:7, name:"Idli Sambar",price:30,  emoji:"🥞" },
+  ],
+  "Meals": [
+    { id:10, name:"Full Thali",     price:120, emoji:"🍽️" },
+    { id:11, name:"Half Thali",     price:80,  emoji:"🥘" },
+    { id:12, name:"Dal Rice",       price:60,  emoji:"🍚" },
+    { id:13, name:"Veg Biryani",    price:100, emoji:"🍛" },
+  ],
+  "Chapati Bhaji": [
+    { id:20, name:"Chapati (2pc)",  price:20,  emoji:"🫓" },
+    { id:21, name:"Bhaji",         price:40,  emoji:"🥗" },
+    { id:22, name:"Puri Bhaji",    price:50,  emoji:"🫔" },
+  ],
+  "Tea & Coffee": [
+    { id:30, name:"Tea",            price:15,  emoji:"☕" },
+    { id:31, name:"Coffee",        price:20,  emoji:"☕" },
+    { id:32, name:"Masala Chai",   price:20,  emoji:"🍵" },
+    { id:33, name:"Cold Coffee",   price:40,  emoji:"🧋" },
+  ],
+  "Snacks": [
+    { id:40, name:"Samosa",        price:15,  emoji:"🥟" },
+    { id:41, name:"Kachori",       price:20,  emoji:"🫓" },
+    { id:42, name:"Pakoda",        price:30,  emoji:"🍟" },
+  ]
+};
+
+let currentTable = 2;
+let currentCategory = "Breakfast";
+let cart = {}; // { dish_id: {dish, qty} }
+let selectedPayment = "Cash";
+let billCounter = 452;
+let savedBills = [
+  { no:"HG-00452", table:2, amount:265, time:"07:42 PM", pay:"UPI",  items:[{name:"Sheera",qty:1,rate:40},{name:"Misal Pav",qty:2,rate:90},{name:"Tea",qty:3,rate:15}] },
+  { no:"HG-00451", table:1, amount:620, time:"07:31 PM", pay:"Cash", items:[{name:"Misal Pav",qty:2,rate:90},{name:"Tea",qty:2,rate:15},{name:"Idli Sambar",qty:1,rate:50}] },
+  { no:"HG-00450", table:5, amount:280, time:"06:12 PM", pay:"UPI",  items:[{name:"Upma",qty:2,rate:30},{name:"Tea",qty:2,rate:15},{name:"Sheera",qty:2,rate:40}] },
+  { no:"HG-00449", table:4, amount:420, time:"06:15 PM", pay:"Cash", items:[{name:"Full Thali",qty:2,rate:120},{name:"Tea",qty:3,rate:15}] },
+  { no:"HG-00448", table:3, amount:310, time:"06:32 PM", pay:"UPI",  items:[{name:"Veg Biryani",qty:2,rate:100},{name:"Cold Coffee",qty:1,rate:40}] },
+  { no:"HG-00447", table:1, amount:160, time:"06:10 PM", pay:"Cash", items:[{name:"Pohe",qty:2,rate:30},{name:"Tea",qty:2,rate:15},{name:"Samosa",qty:2,rate:15}] },
+];
+let filteredBills = [...savedBills];
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function goto(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById(pageId);
+  page.classList.add('active');
+  page.scrollTop = 0;
+
+  if (pageId === 'page-menu') renderDishes();
+  if (pageId === 'page-bill-preview') renderBillPreview();
+  if (pageId === 'page-bills') renderBillsList();
+}
+
+// ─────────────────────────────────────────────
+// TABLE SELECT
+// ─────────────────────────────────────────────
+function selectTable(num) {
+  currentTable = num;
+  cart = {};
+  currentCategory = "Breakfast";
+  document.getElementById('menu-header').textContent = `Table ${num} – New Order`;
+  document.getElementById('bill-preview-header').textContent = `Table ${num} – Bill`;
+  document.getElementById('preview-tableno').textContent = num;
+  // Reset category tabs
+  document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-cat="Breakfast"]').classList.add('active');
+  goto('page-menu');
+}
+
+function setDirectCategory(cat) {
+  selectTable(1);
+  currentCategory = cat;
+  document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-cat="${cat}"]`).classList.add('active');
+  goto('page-menu');
+}
+
+// ─────────────────────────────────────────────
+// CATEGORY
+// ─────────────────────────────────────────────
+function setCategory(el, cat) {
+  currentCategory = cat;
+  document.querySelectorAll('.category-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderDishes();
+}
+
+// ─────────────────────────────────────────────
+// RENDER DISHES
+// ─────────────────────────────────────────────
+let searchQuery = "";
+function searchDishes(q) { searchQuery = q.toLowerCase(); renderDishes(); }
+
+function renderDishes() {
+  const dishes = (MENU[currentCategory] || []).filter(d => d.name.toLowerCase().includes(searchQuery));
+  const el = document.getElementById('dish-list');
+  el.innerHTML = dishes.map(d => {
+    const inCart = cart[d.id];
+    return `<div class="dish-row">
+      <div class="dish-img">${d.emoji}</div>
+      <div class="dish-info">
+        <div class="dish-name">${d.name}</div>
+        <div class="dish-price">₹ ${d.price}</div>
+      </div>
+      ${inCart ? `
+        <div class="qty-ctrl">
+          <button onclick="changeQty(${d.id},-1)">−</button>
+          <span>${inCart.qty}</span>
+          <button onclick="changeQty(${d.id},+1)">+</button>
+        </div>` : `<button class="btn-add" onclick="addToCart(${d.id})">+</button>`}
+    </div>`;
+  }).join('');
+  updateCartBar();
+}
+
+function addToCart(id) {
+  const dish = Object.values(MENU).flat().find(d => d.id === id);
+  if (!dish) return;
+  cart[id] = { dish, qty: 1 };
+  renderDishes();
+}
+
+function changeQty(id, delta) {
+  if (!cart[id]) return;
+  cart[id].qty += delta;
+  if (cart[id].qty <= 0) delete cart[id];
+  renderDishes();
+}
+
+function clearCart() { cart = {}; renderDishes(); }
+
+function updateCartBar() {
+  const bar = document.getElementById('cart-bar');
+  const items = Object.values(cart);
+  if (!items.length) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  const totalQty = items.reduce((s,i) => s + i.qty, 0);
+  const totalAmt = items.reduce((s,i) => s + i.qty * i.dish.price, 0);
+  document.getElementById('cart-count-label').textContent = `${totalQty} item${totalQty>1?'s':''}`;
+  document.getElementById('cart-total-label').textContent = `₹ ${totalAmt}`;
+}
+
+// ─────────────────────────────────────────────
+// BILL PREVIEW
+// ─────────────────────────────────────────────
+function renderBillPreview() {
+  const items = Object.values(cart);
+  const total = items.reduce((s,i) => s + i.qty * i.dish.price, 0);
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('preview-billno').textContent = `HG-00${billCounter}`;
+  document.getElementById('preview-date').textContent = '09 Sep 2026';
+  document.getElementById('preview-time').textContent = timeStr;
+  document.getElementById('preview-subtotal').textContent = `₹ ${total}`;
+  document.getElementById('preview-total').textContent = `₹ ${total}`;
+
+  const el = document.getElementById('bill-items-preview');
+  el.innerHTML = items.map(i => `
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4px;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:12px;">
+      <span>${i.dish.name}</span>
+      <span style="text-align:center;">${i.qty}</span>
+      <span style="text-align:right;">₹ ${i.dish.price}</span>
+      <span style="text-align:right;font-weight:700;">₹ ${i.qty*i.dish.price}</span>
+    </div>`).join('');
+}
+
+function selectPay(el, method) {
+  selectedPayment = method;
+  document.querySelectorAll('#pay-method-btns .pay-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function printBill() { alert('🖨️ Print feature: Send to printer (not available in demo).'); }
+
+function saveBill() {
+  const items = Object.values(cart);
+  if (!items.length) { alert('Cart is empty!'); return; }
+  const total = items.reduce((s,i) => s + i.qty * i.dish.price, 0);
+  const billNo = `HG-00${billCounter}`;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+  savedBills.unshift({
+    no: billNo,
+    table: currentTable,
+    amount: total,
+    time: timeStr,
+    pay: selectedPayment,
+    items: items.map(i => ({ name: i.dish.name, qty: i.qty, rate: i.dish.price }))
+  });
+  filteredBills = [...savedBills];
+  billCounter++;
+
+  document.getElementById('saved-bill-msg').textContent = `Bill No. ${billNo} has been saved.`;
+  cart = {};
+  goto('page-bill-saved');
+}
+
+function newOrder() {
+  currentCategory = "Breakfast";
+  document.querySelectorAll('.category-tab').forEach(b => b.classList.remove('active'));
+  const bf = document.querySelector('[data-cat="Breakfast"]');
+  if (bf) bf.classList.add('active');
+  goto('page-tables');
+}
+
+// ─────────────────────────────────────────────
+// BILLS LIST
+// ─────────────────────────────────────────────
+let billsSearch = "";
+function searchBills(q) { billsSearch = q.toLowerCase(); renderBillsList(); }
+
+function setFilter(el, period) {
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderBillsList();
+}
+
+function renderBillsList() {
+  const tableVal = document.getElementById('table-filter').value;
+  const payVal = document.getElementById('pay-filter').value;
+
+  let bills = savedBills.filter(b => {
+    const matchTable = tableVal === 'all' || b.table == tableVal;
+    const matchPay = payVal === 'all' || b.pay === payVal;
+    const matchSearch = !billsSearch || b.no.toLowerCase().includes(billsSearch);
+    return matchTable && matchPay && matchSearch;
+  });
+
+  filteredBills = bills;
+  const totalSales = bills.reduce((s,b) => s + b.amount, 0);
+  document.getElementById('bills-total-sales').textContent = `₹ ${totalSales.toLocaleString()}`;
+  document.getElementById('bills-total-count').textContent = bills.length;
+
+  const el = document.getElementById('bills-list');
+  el.innerHTML = bills.map((b,i) => `
+    <div class="bills-row" onclick="viewBillDetail(${savedBills.indexOf(b)})">
+      <span style="font-size:12px;font-weight:600;color:#c0392b;">${b.no}</span>
+      <span style="font-size:12px;text-align:center;color:#555;">${b.table}</span>
+      <span style="font-size:12px;font-weight:700;color:#333;">₹ ${b.amount}</span>
+      <span style="font-size:11px;color:#888;">${b.time}</span>
+      <span class="badge ${b.pay==='UPI'?'badge-blue':b.pay==='Cash'?'badge-green':'badge-orange'}" style="font-size:10px;">${b.pay}</span>
+    </div>`).join('') || '<div style="text-align:center;color:#aaa;padding:20px;font-size:13px;">No bills found</div>';
+}
+
+function viewBillDetail(idx) {
+  const b = savedBills[idx];
+  if (!b) return;
+  document.getElementById('det-billno').textContent = b.no;
+  document.getElementById('det-tableno').textContent = b.table;
+  document.getElementById('det-pay').textContent = b.pay;
+  document.getElementById('det-total').textContent = `₹ ${b.amount}`;
+  document.getElementById('det-items').innerHTML = b.items.map(i => `
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4px;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:12px;">
+      <span>${i.name}</span>
+      <span style="text-align:center;">${i.qty}</span>
+      <span style="text-align:right;">₹ ${i.rate}</span>
+      <span style="text-align:right;font-weight:700;">₹ ${i.qty*i.rate}</span>
+    </div>`).join('');
+  goto('page-bill-detail');
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+renderBillsList();
+</script>
+</body>
+</html>
